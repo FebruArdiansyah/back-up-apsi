@@ -300,33 +300,24 @@
                 <h1 class="text-primary mb-3"><span class="fw-light text-dark">CheckOut</span> Hair Products</h1>
             </div>
             <div class="row g-4">
-                @php
-                    $products = $products ?? [];
-                @endphp
-                @if (is_array($products) || is_object($products))
-                    @foreach ($products as $product)
-                        <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.1s">
-                            <div class="product-item text-center border h-100 p-4">
-                                @if ($product->image)
-                                    <img src="{{ $product->image->getUrl('preview') }}">
-                                @endif
-                                <br>
-                                <a href="#" class="h6 d-inline-block mb-2">{{ $product->name }}</a>
-                                <h5 class="text-primary mb-3">Rp {{ $product->price }}/lusin</h5>
-                                <a href="#" class="btn btn-outline-primary px-3 add-to-cart"
-                                   data-id="{{ $product->id }}"
-                                   data-name="{{ $product->name }}"
-                                   data-price="{{ $product->price }}"
-                                   data-image="{{ $product->image ? $product->image->getUrl('preview') : '' }}"
-                                   data-currency="Rp">Add To Cart</a>
-                            </div>
+                @foreach ($products as $product)
+                    <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.1s">
+                        <div class="product-item text-center border h-100 p-4">
+                            @if ($product->image)
+                                <img src="{{ $product->image->getUrl('preview') }}">
+                            @endif
+                            <br>
+                            <a href="#" class="h6 d-inline-block mb-2">{{ $product->name }}</a>
+                            <h5 class="text-primary mb-3">Rp {{ $product->price }}/lusin</h5>
+                            <a href="#" class="btn btn-outline-primary px-3 add-to-cart"
+                               data-id="{{ $product->id }}"
+                               data-name="{{ $product->name }}"
+                               data-price="{{ $product->price }}"
+                               data-image="{{ $product->image ? $product->image->getUrl('preview') : '' }}"
+                               data-currency="Rp">Add To Cart</a>
                         </div>
-                    @endforeach
-                @else
-                    <div class="col-12 text-center">
-                        <p class="text-muted">No products available</p>
                     </div>
-                @endif
+                @endforeach
             </div>
         </div>
     </div>
@@ -346,23 +337,17 @@
                         </tr>
                     </thead>
                     <tbody id="cart-items">
-                        @php $total = 0 @endphp
-                        @foreach (session('cart', []) as $id => $details)
-                            @php $total += $details['price'] * $details['quantity'] @endphp
+                        @foreach ($cart as $id => $details)
                             <tr>
-                                <th scope="row">
+                                <td>
                                     <div class="d-flex align-items-center">
                                         @if (isset($details['image']))
                                             <img src="{{ $details['image'] }}" style="width: 50px; height: 50px;">
                                         @endif
                                     </div>
-                                </th>
-                                <td>
-                                    <p class="mb-0 mt-4">{{ $details['name'] }}</p>
                                 </td>
-                                <td>
-                                    <p class="mb-0 mt-4">Rp {{ $details['price'] }}</p>
-                                </td>
+                                <td><p class="mb-0 mt-4">{{ $details['name'] }}</p></td>
+                                <td><p class="mb-0 mt-4">Rp {{ $details['price'] }}</p></td>
                                 <td>
                                     <div class="input-group quantity mt-4" style="width: 100px;">
                                         <div class="input-group-btn">
@@ -378,14 +363,13 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>
-                                    <p class="mb-0 mt-4">Rp {{ $details['price'] * $details['quantity'] }}</p>
-                                </td>
+                                <td><p class="mb-0 mt-4">Rp {{ $details['price'] * $details['quantity'] }}</p></td>
                                 <td>
                                     <button class="btn btn-md rounded-circle bg-light border mt-4 remove-from-cart" data-id="{{ $id }}">
                                         <i class="fa fa-times text-danger"></i>
                                     </button>
-                                </tr>
+                                </td>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>
@@ -398,13 +382,13 @@
                             <h1 class="display-6 mb-4">Cart <span class="fw-normal">Total</span></h1>
                             <div class="d-flex justify-content-between mb-4">
                                 <h5 class="mb-0 me-4">Subtotal:</h5>
-                                <p class="mb-0" id="cart-subtotal">Rp {{ $total }}</p>
+                                <p class="mb-0" id="cart-subtotal">Rp {{ number_format($total, 2) }}</p>
                             </div>
                         </div>
                     </div>
                     <div class="py-4 mb-4 border-top border-bottom d-flex justify-content-between">
                         <h5 class="mb-0 ps-4 me-4">Total</h5>
-                        <p class="mb-0 pe-4" id="cart-total">Rp {{ $total }}</p>
+                        <p class="mb-0 pe-4" id="cart-total">Rp {{ number_format($total, 2) }}</p>
                     </div>
                     <form id="checkout-form" action="{{ route('checkout.index') }}" method="GET">
                         <button type="submit" class="btn-cart">Checkout</button>
@@ -413,8 +397,8 @@
             </div>
         </div>
     </div>
-    
 </section>
+<!-- Cart Page End -->
 
 
 
@@ -477,151 +461,77 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
-   <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const addToCartButtons = document.querySelectorAll(".add-to-cart");
-    const cartItemsContainer = document.getElementById("cart-items");
-    const cartSubtotalElement = document.getElementById("cart-subtotal");
-    const cartTotalElement = document.getElementById("cart-total");
-
-    // Add event listener to each "Add To Cart" button
-    addToCartButtons.forEach(button => {
-        button.addEventListener("click", function (event) {
-            event.preventDefault();
-            const product = {
-                id: this.dataset.id,
-                name: this.dataset.name,
-                price: parseFloat(this.dataset.price),
-                image: this.dataset.image,
-                currency: this.dataset.currency,
-                quantity: 1
-            };
-            addProductToCart(product);
+    <script>
+        $(document).ready(function() {
+            $(".add-to-cart").click(function(e) {
+                e.preventDefault();
+                var id = $(this).data("id");
+                var name = $(this).data("name");
+                var price = $(this).data("price");
+                var image = $(this).data("image");
+        
+                $.ajax({
+                    url: "{{ route('cart.add') }}",
+                    method: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        id: id,
+                        name: name,
+                        price: price,
+                        image: image
+                    },
+                    success: function(response) {
+                        alert(response.message);
+                        location.reload(); // Reload the page to reflect changes in the cart
+                    }
+                });
+            });
+        
+            $(".increase-cart, .decrease-cart").click(function(e) {
+                e.preventDefault();
+                var id = $(this).data("id");
+                var quantity = $(this).closest(".quantity").find("input").val();
+        
+                if ($(this).hasClass("increase-cart")) {
+                    quantity++;
+                } else if ($(this).hasClass("decrease-cart") && quantity > 1) {
+                    quantity--;
+                }
+        
+                $.ajax({
+                    url: "{{ route('cart.update') }}",
+                    method: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        id: id,
+                        quantity: quantity
+                    },
+                    success: function(response) {
+                        alert(response.message);
+                        location.reload(); // Reload the page to reflect changes in the cart
+                    }
+                });
+            });
+        
+            $(".remove-from-cart").click(function(e) {
+                e.preventDefault();
+                var id = $(this).data("id");
+        
+                $.ajax({
+                    url: "{{ route('cart.remove') }}",
+                    method: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        id: id
+                    },
+                    success: function(response) {
+                        alert(response.message);
+                        location.reload(); // Reload the page to reflect changes in the cart
+                    }
+                });
+            });
         });
-    });
-
-    // Function to add a product to the cart
-    function addProductToCart(product) {
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        const existingProductIndex = cart.findIndex(item => item.id === product.id);
-
-        if (existingProductIndex >= 0) {
-            cart[existingProductIndex].quantity += 1;
-        } else {
-            cart.push(product);
-        }
-
-        localStorage.setItem("cart", JSON.stringify(cart));
-        renderCartItems();
-    }
-
-    // Function to render cart items in the HTML
-    function renderCartItems() {
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        let cartItemsHTML = '';
-        let subtotal = 0;
-
-        cart.forEach(item => {
-            const total = item.price * item.quantity;
-            subtotal += total;
-            cartItemsHTML += `
-                <tr>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <img src="${item.image}" style="width: 50px; height: 50px;">
-                        </div>
-                    </td>
-                    <td><p class="mb-0 mt-4">${item.name}</p></td>
-                    <td><p class="mb-0 mt-4">Rp ${item.price}</p></td>
-                    <td>
-                        <div class="input-group quantity mt-4" style="width: 100px;">
-                            <div class="input-group-btn">
-                                <button class="btn btn-sm btn-minus rounded-circle bg-light border decrease-cart" onclick="updateQuantity('${item.id}', -1)">
-                                    <i class="fa fa-minus"></i>
-                                </button>
-                            </div>
-                            <input type="text" class="form-control form-control-sm text-center border-0" value="${item.quantity}" readonly>
-                            <div class="input-group-btn">
-                                <button class="btn btn-sm btn-plus rounded-circle bg-light border increase-cart" onclick="updateQuantity('${item.id}', 1)">
-                                    <i class="fa fa-plus"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </td>
-                    <td><p class="mb-0 mt-4">Rp ${total}</p></td>
-                    <td>
-                        <button class="btn btn-md rounded-circle bg-light border mt-4 remove-from-cart" onclick="removeFromCart('${item.id}')">
-                            <i class="fa fa-times text-danger"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-        });
-
-        cartItemsContainer.innerHTML = cartItemsHTML;
-        cartSubtotalElement.innerText = `Rp ${subtotal.toFixed(2)}`;
-        cartTotalElement.innerText = `Rp ${subtotal.toFixed(2)}`;
-    }
-
-    // Function to update quantity of a product in the cart
-    window.updateQuantity = function (productId, change) {
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        const productIndex = cart.findIndex(item => item.id === productId);
-
-        if (productIndex >= 0) {
-            cart[productIndex].quantity += change;
-            if (cart[productIndex].quantity <= 0) {
-                cart.splice(productIndex, 1);
-            }
-        }
-
-        localStorage.setItem("cart", JSON.stringify(cart));
-        renderCartItems();
-    };
-
-    // Function to remove a product from the cart
-    window.removeFromCart = function (productId) {
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        cart = cart.filter(item => item.id !== productId);
-        localStorage.setItem("cart", JSON.stringify(cart));
-        renderCartItems();
-    };
-
-    // Initial render of cart items on page load
-    renderCartItems();
-});
-
-    function displayCartItems() {
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    let cartList = document.getElementById('cart-list');
-    let cartTotalPrice = document.getElementById('cart-total-price');
-    
-    if (!cartList || !cartTotalPrice) {
-        console.error('Cart list or total price element not found.');
-        return;
-    }
-
-    cartList.innerHTML = ''; // Clear previous content
-    let total = 0;
-
-    if (cart.length === 0) {
-        cartList.innerHTML = '<p>No items in cart</p>';
-        cartTotalPrice.innerHTML = '';
-    } else {
-        cart.forEach(item => {
-            let itemLi = document.createElement('li');
-            itemLi.classList.add('cart-item');
-            itemLi.innerHTML = `Product: ${item.name} | Price: Rp ${item.price.toLocaleString('id-ID')} | Quantity: ${item.quantity}`;
-            cartList.appendChild(itemLi);
-            
-            total += item.price * item.quantity;
-        });
-
-        cartTotalPrice.innerHTML = `Total: Rp ${total.toLocaleString('id-ID')}`;
-    }
-}
-
-   </script>
+        </script>
 
     <!-- Template Javascript -->
     <script src="jss/main.js"></script>

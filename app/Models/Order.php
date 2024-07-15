@@ -30,6 +30,7 @@ class Order extends Model implements HasMedia
     public const STATUS = [
         'terbayar' => 'Terbayar',
         'belum terbayar' => 'Belum Terbayar',
+        'pending' => 'Pending', // Add this status if not already present
         'selesai' => 'Selesai',
     ];
 

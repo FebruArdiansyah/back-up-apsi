@@ -11,14 +11,20 @@ Route::get('/home', function () {
     return redirect()->route('admin.home');
 });
 
-Route::get('/', [ProductCartController::class, 'index']);
-Route::post('/add-to-cart', [ProductCartController::class, 'addToCart']);
-Route::get('/cart', [ProductCartController::class, 'showCart']);
+Route::get('/', [ProductCartController::class, 'index'])->name('index');
+Route::post('/cart/add', [ProductCartController::class, 'addToCart'])->name('cart.add');
+Route::post('/cart/update', [ProductCartController::class, 'updateCart'])->name('cart.update');
+Route::post('/cart/remove', [ProductCartController::class, 'removeFromCart'])->name('cart.remove');
+Route::get('/checkout', [ProductCartController::class, 'showCart'])->name('checkout.index');
+
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success'); // Added this line
 Route::get('/order/{id}', [CheckoutController::class, 'showOrder'])->name('order.show');
 Route::post('/midtrans.checkout', [CheckoutController::class, 'checkout'])->name('midtrans.checkout');
+Route::get('/order/{id}', [CheckoutController::class, 'showOrder'])->name('order.show');
+Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 // Route::post('/midtrans-callback', [CheckoutController::class, 'callback'])->name('midtrans.callback');
 
 

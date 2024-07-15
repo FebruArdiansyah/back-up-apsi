@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->string('pengiriman')->nullable();
             $table->decimal('total', 15, 2)->nullable();
-            $table->string('status')->nullable();
+            $table->string('status')->default('belum terbayar');
             $table->timestamps();
             $table->softDeletes();
         });

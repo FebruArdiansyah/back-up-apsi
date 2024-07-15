@@ -83,7 +83,7 @@
                                 </ul>
                             </td>
                             <td>
-                                {{ App\Models\Order::PENGIRIMAN[$order->pengiriman] ?? '' }}
+                                {{ $order->pengiriman ?? '' }}
                             </td>
                             <td>
                                 {{ $order->total ?? '' }}

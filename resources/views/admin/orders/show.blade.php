@@ -72,7 +72,7 @@
                             {{ trans('cruds.order.fields.pengiriman') }}
                         </th>
                         <td>
-                            {{ App\Models\Order::PENGIRIMAN[$order->pengiriman] ?? '' }}
+                            {{ $order->pengiriman }}
                         </td>
                     </tr>
                     <tr>

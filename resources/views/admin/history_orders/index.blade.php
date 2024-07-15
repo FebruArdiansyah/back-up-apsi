@@ -39,9 +39,7 @@
                                     @endforeach
                                 </ul>
                             </td>
-                            <td>
-                                {{-- {{ App\Models\OrderManual::PENGIRIMAN[$b->pengiriman] ?? '' }} --}}
-                            </td>
+                            <td>{{ $b->pengiriman ?? '' }}</td>
                             <td>
                                 {{ $b->total ?? '' }}
                             </td>

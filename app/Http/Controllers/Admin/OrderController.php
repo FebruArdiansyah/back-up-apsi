@@ -25,17 +25,6 @@ class OrderController extends Controller
         
         $orders = Order::with(['products'])->get();
 
-        // foreach ($orders as $order) {
-        //     if ($currentDateTime->greaterThanOrEqualTo(Carbon::parse($order->finish_book)) && $order->status != 'Selesai') {
-        //         $order->update(['status' => 'Selesai']);
-        //         $table = Table::find($order->table_id);
-        //         if ($table) {
-        //             $table->status = 'kosong';
-        //             $table->save();
-        //         }
-        //     }
-        // }
-
         return view('admin.orders.index', compact('orders'));
     }
 

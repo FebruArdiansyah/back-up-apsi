@@ -7,27 +7,18 @@ use Illuminate\Http\Request;
 
 class ProductCartController extends Controller
 {
-    /**
-     * Menampilkan halaman dengan daftar produk dan cart.
-     *
-     * @return \Illuminate\View\View
-     */
     public function index()
     {
         $products = Product::all();
         $cart = session()->get('cart', []);
-        return view('layouts.index', compact('products', 'cart'));
+        $total = array_sum(array_map(function($item) {
+            return $item['price'] * $item['quantity'];
+        }, $cart));
+        return view('layouts.index', compact('products', 'cart', 'total'));
     }
 
-    /**
-     * Menambahkan produk ke dalam cart.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function addToCart(Request $request)
     {
-        // Validasi request
         $request->validate([
             'id' => 'required|exists:products,id',
             'name' => 'required',
@@ -36,20 +27,18 @@ class ProductCartController extends Controller
         ]);
 
         $cart = session()->get('cart', []);
-
         $id = $request->id;
-        $product = [
-            'id' => $id,
-            'name' => $request->name,
-            'price' => (float) $request->price,
-            'quantity' => 1,
-            'image' => $request->image,
-        ];
 
         if (isset($cart[$id])) {
             $cart[$id]['quantity']++;
         } else {
-            $cart[$id] = $product;
+            $cart[$id] = [
+                'id' => $id,
+                'name' => $request->name,
+                'price' => (float) $request->price,
+                'quantity' => 1,
+                'image' => $request->image,
+            ];
         }
 
         session()->put('cart', $cart);
@@ -57,33 +46,8 @@ class ProductCartController extends Controller
         return response()->json(['message' => 'Product added to cart successfully!']);
     }
 
-    /**
-     * Menampilkan cart.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function showCart()
-    {
-        $cart = session()->get('cart', []);
-
-        // Hitung total harga
-        $total = 0;
-        foreach ($cart as $details) {
-            $total += $details['price'] * $details['quantity'];
-        }
-
-        return view('layouts.index', compact('cart', 'total'));
-    }
-
-    /**
-     * Memperbarui kuantitas produk dalam cart.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function updateCart(Request $request)
     {
-        // Validasi request
         $request->validate([
             'id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
@@ -91,10 +55,9 @@ class ProductCartController extends Controller
 
         $cart = session()->get('cart', []);
         $id = $request->id;
-        $quantity = $request->quantity;
 
         if (isset($cart[$id])) {
-            $cart[$id]['quantity'] = $quantity;
+            $cart[$id]['quantity'] = $request->quantity;
             session()->put('cart', $cart);
             return response()->json(['message' => 'Cart updated successfully!']);
         }
@@ -102,15 +65,8 @@ class ProductCartController extends Controller
         return response()->json(['message' => 'Product not found in cart.'], 404);
     }
 
-    /**
-     * Menghapus produk dari cart.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function removeFromCart(Request $request)
     {
-        // Validasi request
         $request->validate([
             'id' => 'required|exists:products,id',
         ]);
@@ -126,6 +82,4 @@ class ProductCartController extends Controller
 
         return response()->json(['message' => 'Product not found in cart.'], 404);
     }
-
-    
 }

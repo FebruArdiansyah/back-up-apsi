@@ -1,279 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
-    <title>Hairnic - Single Product Website Template</title>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="" name="keywords">
-    <meta content="" name="description">
-    <!-- Favicon -->
-    <link href="img/favicon.ico" rel="icon">
-
-    <!-- Google Web Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Poppins:wght@200;600;700&display=swap" rel="stylesheet">
-
-    <!-- Icon Font Stylesheet -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
-
-    <!-- Libraries Stylesheet -->
-    <link href="lib/animate/animate.min.css" rel="stylesheet">
-    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-
-    <!-- Customized Bootstrap Stylesheet -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Template Stylesheet -->
-    <link href="frontend/style.css" rel="stylesheet">
-
-    <!-- Midtrans Snap JS -->
-   <script type="text/javascript"
-    src="https://app.sandbox.midtrans.com/snap/snap.js"
-    data-client-key="{{ config('services.midtrans.client_key') }}"></script>
+    <title>Checkout</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+    <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
 </head>
-
 <body>
-    <!-- Spinner Start -->
-    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
-        <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem;" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
-    </div>
-    <!-- Spinner End -->
-
     <section id="order-item">
-        <div class="hj">
-            <div class="order">
-                <h2>Order Form</h2>
-                <ul id="checkout-cart-items">
-                    @php $total = 0; @endphp
-                    @foreach($cart as $id => $details)
-                        <li>{{ $details['name'] }} ({{ $details['quantity'] }} x {{ $details['price'] }})</li>
-                        @php $total += $details['quantity'] * $details['price']; @endphp
-                    @endforeach
-                </ul>
-                <h3>Total: Rp. <span id="checkout-total">{{ $total }}</span></h3>
-                <form id="checkout-form">
-                    @csrf
-                    <input type="hidden" name="total" value="{{ $total }}">
-                
-                    <div>
-                        <label for="fullname">Full Name:</label>
-                        <input type="text" id="fullname" name="name" required> <!-- Changed name="fullname" to name="name" -->
-                    </div>
-                    <div>
-                        <label for="phone">Phone:</label>
-                        <input type="text" id="phone" name="no_telepon" required> <!-- Changed name="phone" to name="no_telepon" -->
-                    </div>
-                    <div>
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-right">
-                        <label for="pengiriman">Pengiriman</label>
-                        <select class="form-control select2" id="pengiriman" name="pengiriman" required>
-                            <option value="">Select Pengiriman</option>
-                            <option value="JNE">JNE</option>
-                            <option value="SICEPAT">SICEPAT</option>
-                            <option value="JNT">JNT</option>
-                            <option value="DJONY_FAST">DJONY FAST</option>
-                        </select>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-left">
-                            <label for="alamat">Alamat</label>
-                            <textarea id="alamat" name="alamat" rows="1" required></textarea>
-                        </div>
-                    </div>
-                    <button type="submit">Proceed to Payment</button>
-                </form>
-                
+        <div class="container">
+            <h2>Order Form</h2>
+            <ul id="checkout-cart-items"></ul>
+            <h3>Total: Rp. <span id="checkout-total"></span></h3>
+            <form id="checkout-form">
+                @csrf
+                <div>
+                    <label for="fullname">Full Name:</label>
+                    <input type="text" id="fullname" name="name" required>
+                </div>
+                <div>
+                    <label for="phone">Phone:</label>
+                    <input type="text" id="phone" name="no_telepon" required>
+                </div>
+                <div>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div>
+                    <label for="pengiriman">Pengiriman</label>
+                    <select class="form-control" id="pengiriman" name="pengiriman" required>
+                        <option value="">Select Pengiriman</option>
+                        <option value="JNE">JNE</option>
+                        <option value="SICEPAT">SICEPAT</option>
+                        <option value="JNT">JNT</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="alamat">Alamat</label>
+                    <textarea id="alamat" name="alamat" rows="1" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Proceed to Payment</button>
+            </form>
 
-                <!-- JavaScript for AJAX submission -->
-                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-                integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
-            </script>
+            <div id="payment-success" style="display: none;">
+                <h2>Payment Success</h2>
+                <p>Thank you for your payment.</p>
+            </div>
+        </div>
+    </section>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cart = {!! json_encode(session('cart', [])) !!};
+            let total = 0;
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        let checkoutCartItems = document.getElementById('checkout-cart-items');
-        let checkoutTotal = document.getElementById('checkout-total');
-        let total = 0;
-
-        cart.forEach(item => {
-            let li = document.createElement('li');
-            li.innerHTML = `${item.name} (${item.quantity} x Rp ${item.price.toLocaleString('id-ID')})`;
-            checkoutCartItems.appendChild(li);
-            total += item.price * item.quantity;
-
-            let hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'cart_items[]';
-            hiddenInput.value = JSON.stringify(item);
-            document.getElementById('checkout-form').appendChild(hiddenInput);
-        });
-
-        checkoutTotal.innerText = total.toLocaleString('id-ID');
-
-        document.getElementById('submit-button').addEventListener('click', function(event) {
-            event.preventDefault(); // Mencegah form refresh
-
-            // Validasi tambahan jika diperlukan
-            let form = document.getElementById('checkout-form');
-            if (form.checkValidity()) {
-                console.log('Form is valid'); // Debugging
-
-                // Serialize form data
-                let formData = $(form).serialize();
-
-                $.ajax({
-                    url: "{{ route('checkout.process') }}",
-                    type: "POST",
-                    data: formData,
-                    success: function(response) {
-                        console.log('Form submitted successfully'); // Debugging
-                        // Handle success, maybe redirect to order page
-                    },
-                    error: function(response) {
-                        console.log('Form submission failed'); // Debugging
-                        // Handle error
-                    }
-                });
-            } else {
-                console.log('Form is not valid'); // Debugging
-                alert('Please fill out all required fields.');
+            for (const [key, product] of Object.entries(cart)) {
+                const item = document.createElement('li');
+                item.textContent = `${product.name} - Quantity: ${product.quantity} - Price: ${product.price}`;
+                document.getElementById('checkout-cart-items').appendChild(item);
+                total += product.quantity * product.price;
             }
-        });
-    });
-</script>
 
-<script>
-    document.getElementById('checkout-form').addEventListener('submit', function(e) {
-        e.preventDefault();
+            document.getElementById('checkout-total').textContent = total;
 
-        let form = e.target;
+            const checkoutForm = document.getElementById('checkout-form');
+            checkoutForm.addEventListener('submit', function (event) {
+                event.preventDefault();
 
-        fetch("{{ route('checkout.process') }}", {
-            method: 'POST',
-            body: new FormData(form),
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value,
-                'Accept': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.snapToken) {
-                window.snap.pay(data.snapToken, {
-                    onSuccess: function(result) {
-                        alert("Payment success!");
-                        window.location.href = "{{ url('/order-success') }}/" + data.order_id;
-                    },
-                    onPending: function(result) {
-                        alert("Waiting for your payment!");
-                    },
-                    onError: function(result) {
-                        alert("Payment failed!");
-                    },
-                    onClose: function() {
-                        alert('You closed the popup without finishing the payment');
-                    }
-                });
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    });
-</script>
+                const formData = new FormData(checkoutForm);
 
-{{-- <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        let checkoutCartItems = document.getElementById('checkout-cart-items');
-        let checkoutTotal = document.getElementById('checkout-total');
-        let total = 0;
-    
-        cart.forEach(item => {
-            let li = document.createElement('li');
-            li.innerHTML = `${item.name} (${item.quantity} x Rp ${item.price.toLocaleString('id-ID')})`;
-            checkoutCartItems.appendChild(li);
-            total += item.price * item.quantity;
-    
-            let hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'cart_items[]';
-            hiddenInput.value = JSON.stringify(item);
-            document.getElementById('checkout-form').appendChild(hiddenInput);
-        });
-    
-        checkoutTotal.innerText = total.toLocaleString('id-ID');
-    
-        document.getElementById('submit-button').addEventListener('click', function(event) {
-            event.preventDefault(); // Mencegah form refresh
-    
-            // Validasi tambahan jika diperlukan
-            let form = document.getElementById('checkout-form');
-            if (form.checkValidity()) {
-                console.log('Form is valid'); // Debugging
-    
-                // Add total amount to the form
-                let totalInput = document.createElement('input');
-                totalInput.type = 'hidden';
-                totalInput.name = 'total';
-                totalInput.value = total;
-                form.appendChild(totalInput);
-    
-                // Serialize form data
-                let formData = new FormData(form);
-    
-                fetch("{{ route('checkout.process') }}", {
+                fetch('/checkout/process', {
                     method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value,
-                        'Accept': 'application/json'
-                    }
+                    body: formData
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.snapToken) {
-                        window.snap.pay(data.snapToken, {
-                            onSuccess: function(result) {
-                                alert("Payment success!");
-                                window.location.href = "{{ url('/order-success') }}/" + data.order_id;
+                        snap.pay(data.snapToken, {
+                            onSuccess: function (result) {
+                                document.getElementById('payment-success').style.display = 'block';
+                                checkoutForm.style.display = 'none';
+                                sessionStorage.removeItem('cart');
+                                window.location.href = `/order/${data.order_id}`;
                             },
-                            onPending: function(result) {
-                                alert("Waiting for your payment!");
+                            onPending: function (result) {
+                                alert('Payment Pending');
                             },
-                            onError: function(result) {
-                                alert("Payment failed!");
-                            },
-                            onClose: function() {
-                                alert('You closed the popup without finishing the payment');
+                            onError: function (result) {
+                                alert('Payment Failed');
                             }
                         });
                     } else {
-                        alert('Error: ' + data.message);
+                        alert('Payment Failed: ' + data.message);
                     }
                 })
-                .catch(error => console.error('Error:', error));
-            } else {
-                console.log('Form is not valid'); // Debugging
-                alert('Please fill out all required fields.');
-            }
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
         });
-    });
-    
-    </script> --}}
-            </div>
-        </div>
-    </section>
+    </script>
 </body>
-
 </html>
