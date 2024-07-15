@@ -30,9 +30,9 @@
     <link href="frontend/style.css" rel="stylesheet">
 
     <!-- Midtrans Snap JS -->
-    <script type="text/javascript"
-        src="https://app.sandbox.midtrans.com/snap/snap.js"
-        data-client-key="{{ config('midtrans.client_key') }}"></script>
+   <script type="text/javascript"
+    src="https://app.sandbox.midtrans.com/snap/snap.js"
+    data-client-key="{{ config('services.midtrans.client_key') }}"></script>
 </head>
 
 <body>
@@ -56,36 +56,31 @@
                     @endforeach
                 </ul>
                 <h3>Total: Rp. <span id="checkout-total">{{ $total }}</span></h3>
-                <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST">
+                <form id="checkout-form">
                     @csrf
                     <input type="hidden" name="total" value="{{ $total }}">
-                    <input type="hidden" id="cart-input" name="cart">
-                    <!-- Form fields -->
-                    <div class="form-row">
-                        <div class="form-left">
-                            <label for="name">Full Name</label>
-                            <input type="text" id="name" name="name" required>
-                        </div>
-                        <div class="form-right">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" name="email" required>
-                        </div>
+                
+                    <div>
+                        <label for="fullname">Full Name:</label>
+                        <input type="text" id="fullname" name="name" required> <!-- Changed name="fullname" to name="name" -->
                     </div>
-                    <div class="form-row">
-                        <div class="form-left">
-                            <label for="phone">No Telepon</label>
-                            <input type="text" id="phone" name="no_telepon" required>
-                        </div>
-                        <div class="form-right">
-                            <label for="pengiriman">Pengiriman</label>
-                            <select class="form-control select2" id="pengiriman" name="pengiriman" required>
-                                <option value="">Select Pengiriman</option>
-                                <option value="JNE">JNE</option>
-                                <option value="SICEPAT">SICEPAT</option>
-                                <option value="JNT">JNT</option>
-                                <option value="DJONY_FAST">DJONY FAST</option>
-                            </select>
-                        </div>
+                    <div>
+                        <label for="phone">Phone:</label>
+                        <input type="text" id="phone" name="no_telepon" required> <!-- Changed name="phone" to name="no_telepon" -->
+                    </div>
+                    <div>
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-right">
+                        <label for="pengiriman">Pengiriman</label>
+                        <select class="form-control select2" id="pengiriman" name="pengiriman" required>
+                            <option value="">Select Pengiriman</option>
+                            <option value="JNE">JNE</option>
+                            <option value="SICEPAT">SICEPAT</option>
+                            <option value="JNT">JNT</option>
+                            <option value="DJONY_FAST">DJONY FAST</option>
+                        </select>
                     </div>
                     <div class="form-row">
                         <div class="form-left">
@@ -93,7 +88,7 @@
                             <textarea id="alamat" name="alamat" rows="1" required></textarea>
                         </div>
                     </div>
-                    <button type="button" class="btn-submit" id="submit-button">Submit Order</button>
+                    <button type="submit">Proceed to Payment</button>
                 </form>
                 
 
@@ -157,33 +152,45 @@
     });
 </script>
 
-@if(isset($snapToken))
-    <script type="text/javascript">
-        var payButton = document.getElementById('pay-button');
-        if (payButton) {
-            payButton.addEventListener('click', function() {
-                window.snap.pay('{{ $snapToken }}', {
+<script>
+    document.getElementById('checkout-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        let form = e.target;
+
+        fetch("{{ route('checkout.process') }}", {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value,
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.snapToken) {
+                window.snap.pay(data.snapToken, {
                     onSuccess: function(result) {
-                        alert("Payment successful!");
-                        console.log(result);
-                        window.location.href = "{{ route('order.show', ['id' => $order->id]) }}";
+                        alert("Payment success!");
+                        window.location.href = "{{ url('/order-success') }}/" + data.order_id;
                     },
                     onPending: function(result) {
                         alert("Waiting for your payment!");
-                        console.log(result);
                     },
                     onError: function(result) {
                         alert("Payment failed!");
-                        console.log(result);
                     },
                     onClose: function() {
                         alert('You closed the popup without finishing the payment');
                     }
                 });
-            });
-        }
-    </script>
-@endif
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
 
             </div>
         </div>
