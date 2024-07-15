@@ -126,7 +126,7 @@ use Illuminate\Support\Facades\Log;
 class CheckoutController extends Controller
 {
     public function __construct()
-     {
+    {
         Config::$serverKey = config('services.midtrans.server_key');
         Config::$isProduction = false; // Set to true for production
         Config::$isSanitized = true;
@@ -140,53 +140,62 @@ class CheckoutController extends Controller
     }
 
     public function process(Request $request)
-{
-    $cart = session()->get('cart', []);
-    $total = $request->input('total');
-    $name = $request->input('name');
-    $no_telepon = $request->input('no_telepon');
-    $email = $request->input('email');
-    $alamat = $request->input('alamat');
-    $pengiriman = $request->input('pengiriman');
+    {
+        $cart = session()->get('cart', []);
+        $total = 0;
 
-    // Generate a unique order ID
-    $orderId = uniqid('order');
+        foreach ($cart as $details) {
+            $total += $details['quantity'] * $details['price'];
+        }
 
-    $order = Order::create([
-        'order_id' => $orderId,
-        'name' => $name,
-        'no_telepon' => $no_telepon,
-        'email' => $email,
-        'alamat' => $alamat,
-        'pengiriman' => $pengiriman,
-        'total' => $total,
-        'status' => 'pending',
-    ]);
+        if ($total < 0.01) {
+            return response()->json(['message' => 'Invalid total amount'], 400);
+        }
 
-    foreach ($cart as $id => $details) {
-        $order->products()->attach($id, ['quantity' => $details['quantity']]);
-    }
+        $name = $request->input('name');
+        $no_telepon = $request->input('no_telepon');
+        $email = $request->input('email');
+        $alamat = $request->input('alamat');
+        $pengiriman = $request->input('pengiriman');
 
-    $params = [
-        'transaction_details' => [
+        // Generate a unique order ID
+        $orderId = uniqid('order');
+
+        $order = Order::create([
             'order_id' => $orderId,
-            'gross_amount' => $total,
-        ],
-        'customer_details' => [
             'name' => $name,
-            'email' => $email,
             'no_telepon' => $no_telepon,
+            'email' => $email,
             'alamat' => $alamat,
-        ],
-    ];
+            'pengiriman' => $pengiriman,
+            'total' => $total,
+            'status' => 'pending',
+        ]);
 
-    try {
-        $snapToken = Snap::getSnapToken($params);
-        return response()->json(['snapToken' => $snapToken, 'order_id' => $order->id]);
-    } catch (\Exception $e) {
-        return response()->json(['message' => $e->getMessage()], 500);
+        foreach ($cart as $id => $details) {
+            $order->products()->attach($id, ['quantity' => $details['quantity']]);
+        }
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => $orderId,
+                'gross_amount' => $total,
+            ],
+            'customer_details' => [
+                'first_name' => $name,
+                'email' => $email,
+                'phone' => $no_telepon,
+                'address' => $alamat,
+            ],
+        ];
+
+        try {
+            $snapToken = Snap::getSnapToken($params);
+            return response()->json(['snapToken' => $snapToken, 'order_id' => $order->id]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
-}
 
     public function callback(Request $request)
     {
