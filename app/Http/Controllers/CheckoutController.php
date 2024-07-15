@@ -142,11 +142,7 @@ class CheckoutController extends Controller
     public function process(Request $request)
     {
         $cart = session()->get('cart', []);
-        $total = 0;
-
-        foreach ($cart as $details) {
-            $total += $details['quantity'] * $details['price'];
-        }
+        $total = $request->input('total');
 
         if ($total < 0.01) {
             return response()->json(['message' => 'Invalid total amount'], 400);

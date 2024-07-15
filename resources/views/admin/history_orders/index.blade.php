@@ -40,7 +40,7 @@
                                 </ul>
                             </td>
                             <td>
-                                {{ App\Models\OrderManual::PENGIRIMAN[$b->pengiriman] ?? '' }}
+                                {{-- {{ App\Models\OrderManual::PENGIRIMAN[$b->pengiriman] ?? '' }} --}}
                             </td>
                             <td>
                                 {{ $b->total ?? '' }}

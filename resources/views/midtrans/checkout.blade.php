@@ -192,6 +192,85 @@
     });
 </script>
 
+{{-- <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let checkoutCartItems = document.getElementById('checkout-cart-items');
+        let checkoutTotal = document.getElementById('checkout-total');
+        let total = 0;
+    
+        cart.forEach(item => {
+            let li = document.createElement('li');
+            li.innerHTML = `${item.name} (${item.quantity} x Rp ${item.price.toLocaleString('id-ID')})`;
+            checkoutCartItems.appendChild(li);
+            total += item.price * item.quantity;
+    
+            let hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'cart_items[]';
+            hiddenInput.value = JSON.stringify(item);
+            document.getElementById('checkout-form').appendChild(hiddenInput);
+        });
+    
+        checkoutTotal.innerText = total.toLocaleString('id-ID');
+    
+        document.getElementById('submit-button').addEventListener('click', function(event) {
+            event.preventDefault(); // Mencegah form refresh
+    
+            // Validasi tambahan jika diperlukan
+            let form = document.getElementById('checkout-form');
+            if (form.checkValidity()) {
+                console.log('Form is valid'); // Debugging
+    
+                // Add total amount to the form
+                let totalInput = document.createElement('input');
+                totalInput.type = 'hidden';
+                totalInput.name = 'total';
+                totalInput.value = total;
+                form.appendChild(totalInput);
+    
+                // Serialize form data
+                let formData = new FormData(form);
+    
+                fetch("{{ route('checkout.process') }}", {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value,
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.snapToken) {
+                        window.snap.pay(data.snapToken, {
+                            onSuccess: function(result) {
+                                alert("Payment success!");
+                                window.location.href = "{{ url('/order-success') }}/" + data.order_id;
+                            },
+                            onPending: function(result) {
+                                alert("Waiting for your payment!");
+                            },
+                            onError: function(result) {
+                                alert("Payment failed!");
+                            },
+                            onClose: function() {
+                                alert('You closed the popup without finishing the payment');
+                            }
+                        });
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            } else {
+                console.log('Form is not valid'); // Debugging
+                alert('Please fill out all required fields.');
+            }
+        });
+    });
+    
+    </script> --}}
             </div>
         </div>
     </section>
